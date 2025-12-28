@@ -1,6 +1,7 @@
 "use server"
 
 import z from "zod";
+import { loginUser } from "./loginUser";
 
 const registerValidationZodSchema = z.object({
     name: z.string().min(1, { message: "Name is required" }),
@@ -60,11 +61,23 @@ export const registerPatient=async(currentState:any,formData:any)=>{
         const res=await fetch("http://localhost:5000/api/v1/user/create-patient",{
             method:"POST",
             body:newFormData
-        }).then(res=>res.json());
-        console.log(res)
-        return res
-    } catch (error) {
+        })
+
+          const result = await res.json();
+
+        console.log(res, "res");
+
+        if (result.success) {
+            await loginUser(currentState, formData);
+        }
+
+        return result;
+
+    } catch (error:any) {
         console.log(error)
-        return {error:"Registrartion failed"}
+           if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+            throw error;
+        }
+       return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "Registration Failed. Please try again."}` };
     }
 }

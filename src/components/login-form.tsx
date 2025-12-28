@@ -1,9 +1,10 @@
 "use client";
-import React, { useActionState } from 'react'
+import React, { useActionState, useEffect } from 'react'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { loginUser } from '@/service/auth/loginUser';
+import { toast } from 'sonner';
 
 const LoginForm = ({ redirect }: { redirect?: string }) => {
   const [state,formAction,isPending]=useActionState(loginUser,null);
@@ -17,7 +18,11 @@ const LoginForm = ({ redirect }: { redirect?: string }) => {
     };
     
   }
-  console.log(state)
+  useEffect(()=>{
+    if(state && !state.success && state.message){
+      toast.error(state.message)
+    }
+  })
   return (
      <form action={formAction}>
       {redirect && <input type="hidden" name="redirect" value={redirect} />}

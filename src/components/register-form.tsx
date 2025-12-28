@@ -2,8 +2,9 @@
 import { Field, FieldDescription, FieldGroup, FieldLabel } from './ui/field'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { registerPatient } from '@/service/auth/registerPatient';
+import { toast } from 'sonner';
 
 function RegisterForm() {
   const[state,formAction,isPending]=useActionState(registerPatient,null)
@@ -20,6 +21,12 @@ function RegisterForm() {
       return null;
     }
   };
+
+   useEffect(() => {
+    if (state && !state.success && state.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
 
   return (
      <form action={formAction}>
